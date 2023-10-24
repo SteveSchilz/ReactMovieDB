@@ -13,7 +13,7 @@ export default function App() {
   return (
     <>
       <NavBar movies={movies}></NavBar>
-      <main className="main">
+      <Main>
         <ToggleBox isOpen={isOpen1} setIsOpen={setIsOpen1}>
           <MovieList movies={movies} />
         </ToggleBox>
@@ -21,9 +21,13 @@ export default function App() {
           <WatchedSummary watched={watched} />
           <WatchedMovieList watched={watched} />
         </ToggleBox>
-      </main>
+      </Main>
     </>
   );
+}
+
+function Main({ children }) {
+  return <main className="main">{children}</main>;
 }
 
 function ToggleBox({ isOpen, setIsOpen, children }) {
