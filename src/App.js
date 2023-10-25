@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { tempMovieData, tempWatchedData } from "./temp-movie-data.js";
+import StarRating from "./StarRating.js";
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -7,6 +8,7 @@ const average = (arr) =>
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
   const [watched, setWatched] = useState(tempWatchedData);
+  const [movieRating, setMovieRating] = useState(0);
 
   return (
     <>
@@ -22,6 +24,18 @@ export default function App() {
         <ToggleBox>
           <WatchedSummary watched={watched} />
           <WatchedMovieList watched={watched} />
+          <StarRating
+            messages={["Terrible", "Bad", "Okay", "Good", "Amazing"]}
+            defaultRating={3}
+            maxRating={5}
+            color="red"
+            size={36}
+            className="starRatingStyle"
+            onSetRating={setMovieRating}
+          />
+          <p className="starRatingStyle">
+            This movie was rated {movieRating} stars
+          </p>
         </ToggleBox>
       </Main>
     </>
