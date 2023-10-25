@@ -12,7 +12,11 @@ export default function App() {
 
   return (
     <>
-      <NavBar movies={movies}></NavBar>
+      <NavBar movies={movies}>
+        <Logo />
+        <Search movies={movies} />
+        <Results length={movies.length} />
+      </NavBar>
       <Main>
         <ToggleBox isOpen={isOpen1} setIsOpen={setIsOpen1}>
           <MovieList movies={movies} />
@@ -41,14 +45,8 @@ function ToggleBox({ isOpen, setIsOpen, children }) {
   );
 }
 
-function NavBar({ movies }) {
-  return (
-    <nav className="nav-bar">
-      <Logo />
-      <Search movies={movies} />
-      <Results length={movies.length} />
-    </nav>
-  );
+function NavBar({ movies, children }) {
+  return <nav className="nav-bar">{children}</nav>;
 }
 
 function Logo() {
