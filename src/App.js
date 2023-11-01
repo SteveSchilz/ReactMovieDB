@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { tempMovieData, tempWatchedData } from "./temp-movie-data.js";
 import StarRating from "./StarRating.js";
+
+/* Refer to the readme regarding setting up omdbApiKey if this import fails */
+import secrets from "./secrets.json";
+const omdbAPIKey = secrets.omdbApiKey;
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -9,6 +13,12 @@ export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
   const [watched, setWatched] = useState(tempWatchedData);
   const [movieRating, setMovieRating] = useState(0);
+
+  useEffect(function () {
+    fetch(`http://www.omdbapi.com/?apikey=${omdbAPIKey}&s=Animal House`)
+      .then((res) => res.json())
+      .then((data) => setMovies(data.Search));
+  }, []);
 
   return (
     <>
