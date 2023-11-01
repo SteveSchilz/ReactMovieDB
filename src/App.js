@@ -17,39 +17,48 @@ export default function App() {
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
 
-  useEffect(function () {
-    async function fetchMovies() {
-      try {
-        setIsLoading(true);
-        console.log("fetching...");
-        const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${omdbAPIKey}&s=${query}`
-        );
-        if (!res.ok) {
-          throw new Error("Something Went Wrong: Unable to fetch movies");
+  function handleSetQuery(message) {
+    setQuery(message);
+    setIsLoading(false);
+    setError("");
+  }
+
+  useEffect(
+    function () {
+      async function fetchMovies() {
+        try {
+          setIsLoading(true);
+          console.log("fetching...");
+          const res = await fetch(
+            `http://www.omdbapi.com/?apikey=${omdbAPIKey}&s=${query}`
+          );
+          if (!res.ok) {
+            throw new Error("Something Went Wrong: Unable to fetch movies");
+          }
+
+          const data = await res.json();
+          if (data.Response === "False") throw new Error("Movie Not Found");
+
+          setMovies(data?.Search);
+        } catch (err) {
+          console.log(err.message);
+          setError(err.message);
+          setMovies([]);
+        } finally {
+          setIsLoading(false);
+          console.log("...done");
         }
-
-        const data = await res.json();
-        if (data.Response === "False") throw new Error("Movie Not Found");
-
-        setMovies(data?.Search);
-      } catch (err) {
-        console.log(err.message);
-        setError(err.message);
-        setMovies([]);
-      } finally {
-        setIsLoading(false);
-        console.log("...done");
       }
-    }
-    fetchMovies();
-  }, []);
+      fetchMovies();
+    },
+    [query]
+  );
 
   return (
     <>
       <NavBar movies={movies}>
         <Logo />
-        <Search movies={movies} />
+        <Search movies={movies} query={query} setQuery={handleSetQuery} />
         <Results length={movies.length} />
       </NavBar>
       <Main>
@@ -109,16 +118,24 @@ function Logo() {
   );
 }
 
-function Search({ movies }) {
-  const [query, setQuery] = useState("");
+function Search({ movies, query, setQuery }) {
+  const [tempQuery, setTempQuery] = useState("Animal");
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    console.log("Submit" + tempQuery + " (Q=" + query);
+    setQuery(tempQuery);
+  }
   return (
-    <input
-      className="search"
-      type="text"
-      placeholder="Search movies..."
-      value={query}
-      onChange={(e) => setQuery(e.target.value)}
-    />
+    <form onSubmit={handleSubmit}>
+      <input
+        className="search"
+        type="text"
+        placeholder="Search movies..."
+        value={tempQuery}
+        onChange={(e) => setTempQuery(e.target.value)}
+      />
+    </form>
   );
 }
 
