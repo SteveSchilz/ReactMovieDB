@@ -65,7 +65,8 @@ export default function App() {
         <ToggleBox>
           {isLoading && <Loader />}
           {!isLoading && !error && <MovieList movies={movies} />}
-          {error && <ErrorMessage message={error} />}
+          {query && error && <ErrorMessage message={error} />}
+          {!query && <PromptSearch />}
         </ToggleBox>
         <ToggleBox>
           <WatchedSummary watched={watched} />
@@ -119,7 +120,7 @@ function Logo() {
 }
 
 function Search({ movies, query, setQuery }) {
-  const [tempQuery, setTempQuery] = useState("Animal");
+  const [tempQuery, setTempQuery] = useState("");
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -153,6 +154,14 @@ function Loader() {
 
 function ErrorMessage({ message }) {
   return <p className="error">❌ Error: {message}</p>;
+}
+
+function PromptSearch() {
+  return (
+    <p className="error">
+      🔍 To search for movies, enter text in the search bar and press ENTER
+    </p>
+  );
 }
 
 function MovieList({ movies }) {
