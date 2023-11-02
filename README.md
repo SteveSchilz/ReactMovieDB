@@ -1,70 +1,53 @@
-# Getting Started with Create React App
+# React Open Movie Database 
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This simple react program uses the [Open Movie Database](https://www.omdbapi.com/) to allow you to search for movies, and build a list of movies that you have seen with your own ratings for them.
 
-## Available Scripts
+This app was constructed as part of the  [Ultimate React Course](https://www.udemy.com/course/the-ultimate-react-course/) on Udemy.com by [Jonas Schmedtmann. It 
 
-In the project directory, you can run:
+## React Features Demonstrated
+Basic React Features Including:
+ * React Components
+ * passing props to react components 
+ *  useState to save local state for the app
+ * useEffect hook to fetch movieData from the omdbApi 
 
-### `npm start`
+## Setup and Running
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+In order to run this app you will need the following
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. Install [Node.js](https://nodejs.org/en) for local development. 
 
-### `npm test`
+2. run npm install in the app folder
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+3. Obtain an OMDB key as described below and place it in a src/secrets.json file.
 
-### `npm run build`
+4. run npm start in the app folder
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+5. open a local browser at http://localhost:3000
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+   
+## OMDB Api Key
+The Open Movie Database requires you to have an API key to access their database.  For security, this key is not part of the GitHub project, but instead you will need to obtain your own key and create a src/secrets.json file to hold the key as described below. 
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+You will need to create a free account to obtain the following key as described at [omdbapi.com/apikey.aspx](https://www.omdbapi.com/apikey.aspx). 
 
-### `npm run eject`
+Once you have your key, place it in a plaintext file at "/src/secrets.json" with the contents as follows:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```
+{
+  "omdbApiKey" : "1a2a3a4a"
+}
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+This approach of using a secrets file was found [here](https://blog.netwrix.com/2022/11/14/how-to-hide-api-keys-github/).  There are more advanced ways documented on GitHub at [GtHub-Keeping Your Api Credentials Secure](https://docs.github.com/en/rest/overview/keeping-your-api-credentials-secure?apiVersion=2022-11-28)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+# Create-React-App Readme 
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+This app was bootstrapped using ```npx create-reac-app@5 projectName```The default readme for react apps is found at [ReadmeReact.md](./ReadmeReact.md)
 
-## Learn More
+### Markdown Syntax
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+This file is a Markdown file, which is a plaintext file that can be rendered into HTML and is capable of containing hyperlinks, images, tables and other formatting syntax.  See the [GitHub Document Writing](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) page for more information. 
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
