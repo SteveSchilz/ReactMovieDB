@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 /********************** Styles ***********************/
@@ -44,12 +44,17 @@ export default function StarRating({
     ? messages[tempRating - 1]
     : messages[rating - 1];
 
-  if (isFirstTime) {
-    setIsFirstTime(false);
-    if (onSetRating != null) {
-      onSetRating(rating);
-    }
-  }
+  useEffect(
+    function () {
+      if (isFirstTime) {
+        setIsFirstTime(false);
+        if (onSetRating != null) {
+          onSetRating(rating);
+        }
+      }
+    },
+    [isFirstTime, setIsFirstTime, rating, onSetRating]
+  );
 
   function handleRating(rating) {
     setRating(rating);
@@ -102,9 +107,9 @@ function Star({ onRate, isFilled, onHoverIn, onHoverOut, color, size }) {
     <span
       role="button"
       style={starStyle}
-      onClick={onRate}
-      onMouseEnter={onHoverIn}
-      onMouseLeave={onHoverOut}
+      onClick={() => onRate()}
+      onMouseEnter={() => onHoverIn()}
+      onMouseLeave={() => onHoverOut()}
     >
       {isFilled ? <FullStar color={color} /> : <EmptyStar color={color} />}
     </span>
