@@ -358,7 +358,7 @@ function MovieDetails({
             onSetRating={onSetRating}
           />
           <button className="btn-add" onClick={onSetWatched}>
-            Add To Watched List
+            {!watched ? "Add To" : "Remove From"} Watched List
           </button>
         </div>
         <p>
