@@ -92,6 +92,9 @@ export default function App() {
           if (data.Response === "False") {
             throw new Error("Movie Details Not Found");
           }
+          data.isWatched = false; // Always start off not watched when fetched
+          data.userRating = 0; // and with a user rating of 0
+          data.countRatingDecisions = 0; // and Rating decision count of 0
           setMovieDetails(data);
           console.log("Successfully fetched details for " + data.title);
         } catch (err) {
@@ -281,8 +284,6 @@ function MovieDetails({
   setWatchedMovie,
   movieDetails,
 }) {
-  const [movieRating, setMovieRating] = useState(0);
-  const [watched, setWatched] = useState(false);
   if (movieDetails == null) {
     return;
   }
@@ -295,12 +296,16 @@ function MovieDetails({
       Poster: Poster,
       imdbRating: Number(imdbRating),
       runtime: Number(Runtime.split(" ").at(0)),
-      userRating: 0,
-      countRatingDecisions: 0 /*countRef.current,*/,
+      /* We don't destructure these, because they are editable.
+       * We save the entire movieDetails struct in the watch list whenver
+       * the rating changes or we add the movie to the watched list
+       */
+      // Number(movieDetails.userRating),
+      // countRatingDecisions: 0 /*countRef.current,*/,
+      // isWatched: movieDetails.isWatched,
     };
 
     setWatchedMovie(newWatchedMovie);
-    setWatched((w) => !w);
   }
 
   function onCloseMovie() {
@@ -308,7 +313,11 @@ function MovieDetails({
   }
 
   function onSetRating(rating) {
-    setMovieRating(rating);
+    movieDetails.userRating = Number(rating);
+    /* if the movie is on the watched list, update the movieDetails to include the new watched rating */
+    if (movieDetails.isWatched) {
+      setWatchedMovie(movieDetails);
+    }
   }
 
   /* Destructure Movie Details to get local variables */
@@ -352,14 +361,16 @@ function MovieDetails({
         <div className="rating">
           <StarRating
             messages={["Terrible", "Bad", "Okay", "Good", "Amazing"]}
-            defaultRating={3}
+            defaultRating={movieDetails.userRating}
             maxRating={10}
             size={24}
             onSetRating={onSetRating}
           />
-          <button className="btn-add" onClick={onSetWatched}>
-            {!watched ? "Add To" : "Remove From"} Watched List
-          </button>
+          {movieDetails.userRating > 0 && (
+            <button className="btn-add" onClick={onSetWatched}>
+              {!movieDetails.isWatched ? "Add To" : "Remove From"} Watched List
+            </button>
+          )}
         </div>
         <p>
           <em>{Plot}</em>
@@ -368,17 +379,15 @@ function MovieDetails({
         <p>Directed By {Director}</p>
       </section>
       <hr />
-      {watched ? "True" : "False"}
+      {movieDetails.isWatched ? "True" : "False"}
       <p className="starRatingStyle">
-        This movie was rated {movieRating} stars
+        This movie was rated {movieDetails.userRating} stars
       </p>
     </div>
   );
 }
 
 function WatchedMovieList({ watched, selectedId, setSelectedId }) {
-  function onClickWatched() {}
-
   return (
     <ul className="list">
       {watched.map((movie) => (
