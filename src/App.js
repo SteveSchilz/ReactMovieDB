@@ -41,6 +41,10 @@ export default function App() {
     }
   }
 
+  function handleDeleteWatched(id) {
+    setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
+  }
+
   useEffect(
     function () {
       async function fetchMovies() {
@@ -148,6 +152,7 @@ export default function App() {
                 watched={watched}
                 selectedId={selectedId}
                 setSelectedId={handleSelectMovie}
+                onDeleteWatched={handleDeleteWatched}
               />
             </>
           )}
@@ -387,7 +392,12 @@ function MovieDetails({
   );
 }
 
-function WatchedMovieList({ watched, selectedId, setSelectedId }) {
+function WatchedMovieList({
+  watched,
+  selectedId,
+  setSelectedId,
+  onDeleteWatched,
+}) {
   return (
     <ul className="list">
       {watched.map((movie) => (
@@ -396,6 +406,7 @@ function WatchedMovieList({ watched, selectedId, setSelectedId }) {
           key={movie.imdbID}
           selectedId={selectedId}
           setSelectedId={setSelectedId}
+          onDeleteWatched={onDeleteWatched}
         />
       ))}
     </ul>
@@ -432,7 +443,7 @@ function WatchedSummary({ watched }) {
   );
 }
 
-function WatchedMovie({ movie, selectedId, setSelectedId }) {
+function WatchedMovie({ movie, selectedId, setSelectedId, onDeleteWatched }) {
   function onWatchedClick() {
     if (selectedId === null) {
       setSelectedId(movie.imdbID);
@@ -456,6 +467,12 @@ function WatchedMovie({ movie, selectedId, setSelectedId }) {
           <span>⏳</span>
           <span>{movie.runtime} min</span>
         </p>
+        <button
+          className="btn-delete"
+          onClick={() => onDeleteWatched(movie.imdbID)}
+        >
+          ❌
+        </button>
       </div>
     </li>
   );
