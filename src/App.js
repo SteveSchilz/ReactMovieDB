@@ -32,12 +32,36 @@ export default function App() {
     setIsLoadingDetails(true);
   }
 
-  function handleSetWatched(movie) {
-    console.log(watched.length + "watched Movies");
-    if (watched.filter((m) => m.imdbID === movie.imdbID).length === 0) {
+  function handleSetWatched(movie, update) {
+    const notInList =
+      watched.filter((m) => m.imdbID === movie.imdbID).length === 0;
+
+    if (notInList) {
+      /* If movie is not in list add it to the list */
       setWatched((watched) => [...watched, movie]);
     } else {
-      setWatched((watched) => watched.filter((m) => m.imdbID !== movie.imdbID));
+      /* If it's already in the list, either update it, or remove it from the list */
+      if (update) {
+        /* Update the user-details */
+        setWatched((watched) =>
+          watched.map((wm) =>
+            wm.imdbID === movieDetails.imdbID
+              ? /* Update current movie by spreading */
+                {
+                  ...wm,
+                  countRatingDecisions: movieDetails.countRatingDecisions,
+                  userRating: movieDetails.userRating,
+                  isWatched: movieDetails.userRating,
+                }
+              : wm
+          )
+        );
+      } else {
+        /* Remove movie from list */
+        setWatched((watched) =>
+          watched.filter((m) => m.imdbID !== movie.imdbID)
+        );
+      }
     }
   }
 
@@ -303,7 +327,7 @@ function MovieDetails({
       imdbRating: Number(imdbRating),
       runtime: Number(Runtime.split(" ").at(0)),
       userRating: Number(movieDetails.userRating),
-      countRatingDecisions: 0 /*countRef.current,*/,
+      countRatingDecisions: Number(movieDetails.countRatingDecisions),
       isWatched: movieDetails.isWatched,
     };
     setWatchedMovie(newWatchedMovie, false);
@@ -318,7 +342,7 @@ function MovieDetails({
     movieDetails.userRating = Number(rating);
     /* if the movie is on the watched list, update the movieDetails to include the new watched rating */
     if (movieDetails.isWatched) {
-      setWatchedMovie(movieDetails);
+      setWatchedMovie(movieDetails, true);
     }
   }
 
