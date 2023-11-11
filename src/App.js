@@ -338,11 +338,17 @@ function MovieDetails({
     setSelectedId(null);
   }
 
+  /* If the user rates the movie, they must have watched it, so we add it to the watched list*/
   function handleSetRating(rating) {
+    /* We get an initial call to this function when the StarRating component is insitialized */
+    if (rating === 0) return;
+
     movieDetails.userRating = Number(rating);
-    /* if the movie is on the watched list, update the movieDetails to include the new watched rating */
     if (movieDetails.isWatched) {
-      setWatchedMovie(movieDetails, true);
+      setWatchedMovie(movieDetails, true); // true = Update existing movie
+    } else {
+      movieDetails.isWatched = true;
+      setWatchedMovie(movieDetails, false); // Not an update, add to list)
     }
   }
 
@@ -399,11 +405,9 @@ function MovieDetails({
             size={24}
             onSetRating={handleSetRating}
           />
-          {movieDetails.userRating > 0 && (
-            <button className="btn-add" onClick={onSetWatched}>
-              {!movieDetails.isWatched ? "Add To" : "Remove From"} Watched List
-            </button>
-          )}
+          <button className="btn-add" onClick={onSetWatched}>
+            {!movieDetails.isWatched ? "Add To" : "Remove From"} Watched List
+          </button>
         </div>
         <p>
           <em>{Plot}</em>
