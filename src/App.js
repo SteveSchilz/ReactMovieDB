@@ -294,6 +294,7 @@ function MovieDetails({
   }
 
   function onSetWatched() {
+    movieDetails.isWatched = !movieDetails.isWatched;
     const newWatchedMovie = {
       imdbID: selectedId,
       Title,
@@ -301,24 +302,19 @@ function MovieDetails({
       Poster: Poster,
       imdbRating: Number(imdbRating),
       runtime: Number(Runtime.split(" ").at(0)),
-      /* We don't destructure these, because they are editable.
-       * We save the entire movieDetails struct in the watch list whenver
-       * the rating changes or we add the movie to the watched list
-       */
-      // Number(movieDetails.userRating),
-      // countRatingDecisions: 0 /*countRef.current,*/,
-      // isWatched: movieDetails.isWatched,
+      userRating: Number(movieDetails.userRating),
+      countRatingDecisions: 0 /*countRef.current,*/,
+      isWatched: movieDetails.isWatched,
     };
-
-    setWatchedMovie(newWatchedMovie);
-    onCloseMovie();
+    setWatchedMovie(newWatchedMovie, false);
+    //onCloseMovie();  // This line will close the details after adding to the watch list
   }
 
   function onCloseMovie() {
     setSelectedId(null);
   }
 
-  function onSetRating(rating) {
+  function handleSetRating(rating) {
     movieDetails.userRating = Number(rating);
     /* if the movie is on the watched list, update the movieDetails to include the new watched rating */
     if (movieDetails.isWatched) {
@@ -338,6 +334,13 @@ function MovieDetails({
     Actors = movieDetails.Actors,
     Director = movieDetails.Director,
     Genre = movieDetails.Genre,
+    /* We don't destructure these, because they are editable.
+     * We save the entire movieDetails struct in the watch list whenver
+     * the rating changes or we add the movie to the watched list
+     */
+    //userRating = Number(movieDetails.userRating),
+    //countRatingDecisions = 0 /*countRef.current,*/,
+    //isWatched = movieDetails.isWatched,
   } = movieDetails;
   return (
     <div className="details">
@@ -370,7 +373,7 @@ function MovieDetails({
             defaultRating={movieDetails.userRating}
             maxRating={10}
             size={24}
-            onSetRating={onSetRating}
+            onSetRating={handleSetRating}
           />
           {movieDetails.userRating > 0 && (
             <button className="btn-add" onClick={onSetWatched}>
@@ -468,6 +471,7 @@ function WatchedMovie({ movie, selectedId, setSelectedId, onDeleteWatched }) {
           <span>⏳</span>
           <span>{movie.runtime} min</span>
         </p>
+        <p>W:{movie.isWatched ? "Y" : "N"}</p>
         <button
           className="btn-delete"
           onClick={() => onDeleteWatched(movie.imdbID)}
