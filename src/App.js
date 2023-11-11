@@ -311,6 +311,7 @@ function MovieDetails({
     };
 
     setWatchedMovie(newWatchedMovie);
+    onCloseMovie();
   }
 
   function onCloseMovie() {
