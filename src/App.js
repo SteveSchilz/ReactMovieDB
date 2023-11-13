@@ -66,6 +66,7 @@ export default function App() {
   }
 
   function handleDeleteWatched(id) {
+    setSelectedId(null);
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
 
@@ -475,9 +476,13 @@ function WatchedSummary({ watched }) {
 }
 
 function WatchedMovie({ movie, selectedId, setSelectedId, onDeleteWatched }) {
-  function onWatchedClick() {
+  function onDeleteClick(e) {
+    e.stopPropagation(); // Prevent event from also being handled in onwatchedClick
+    onDeleteWatched(movie.imdbID);
+  }
+  function onWatchedClick(e, id) {
     if (selectedId === null) {
-      setSelectedId(movie.imdbID);
+      setSelectedId(id);
     }
   }
 
@@ -501,7 +506,7 @@ function WatchedMovie({ movie, selectedId, setSelectedId, onDeleteWatched }) {
         <p>W:{movie.isWatched ? "Y" : "N"}</p>
         <button
           className="btn-delete"
-          onClick={() => onDeleteWatched(movie.imdbID)}
+          onClick={(e) => onDeleteClick(e, movie.imdbID)}
         >
           ❌
         </button>
