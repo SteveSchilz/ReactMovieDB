@@ -378,7 +378,6 @@ function MovieDetails({
         <button className="btn-back" onClick={onCloseMovie}>
           &larr;
         </button>
-        <h2>{Title}</h2>
         <img
           src={Poster}
           alt={`Poster of ${Title}`}
