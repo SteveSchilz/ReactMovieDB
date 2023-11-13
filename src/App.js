@@ -338,7 +338,7 @@ function MovieDetails({
       Year: Year,
       Poster: Poster,
       imdbRating: Number(imdbRating),
-      runtime: Number(Runtime.split(" ").at(0)),
+      Runtime: Number(Runtime.split(" ").at(0)),
       userRating: Number(movieDetails.userRating),
       countRatingDecisions: Number(movieDetails.countRatingDecisions),
       isWatched: movieDetails.isWatched,
@@ -460,7 +460,9 @@ function WatchedMovieList({
 function WatchedSummary({ watched }) {
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
   const avgUserRating = average(watched.map((movie) => movie.userRating));
-  const avgRuntime = average(watched.map((movie) => movie.runtime));
+  const avgRuntime = average(
+    watched.map((movie) => movie.Runtime.split(" ").at(0))
+  );
 
   return (
     <div className="summary">
@@ -476,11 +478,11 @@ function WatchedSummary({ watched }) {
         </p>
         <p>
           <span>🌟</span>
-          <span>{avgUserRating}toFixed(2)</span>
+          <span>{avgUserRating.toFixed(2)}</span>
         </p>
         <p>
           <span>⏳</span>
-          <span>{avgRuntime} min</span>
+          <span>{avgRuntime.toFixed(0)} min</span>
         </p>
       </div>
     </div>
@@ -513,9 +515,8 @@ function WatchedMovie({ movie, selectedId, setSelectedId, onDeleteWatched }) {
         </p>
         <p>
           <span>⏳</span>
-          <span>{movie.runtime} min</span>
+          <span>{movie.Runtime}</span>
         </p>
-        <p>W:{movie.isWatched ? "Y" : "N"}</p>
         <button
           className="btn-delete"
           onClick={(e) => onDeleteClick(e, movie.imdbID)}
