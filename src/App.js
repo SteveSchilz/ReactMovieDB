@@ -77,13 +77,21 @@ export default function App() {
 
   useEffect(
     function () {
+      // This API allows us to abort the request in a cleanup function
+      // when a second request comes in while this one is running.
+      // To do this, we pass controller.signal in the fetch request,
+      // and use the cleanup function to abort the request: that happens
+      // when a new request comes in BEFORE the current one has completed.
+      const controller = new AbortController();
+
       async function fetchMovies() {
         try {
           setIsLoading(true);
           setError("");
           console.log("fetching...");
           const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${omdbAPIKey}&s=${query}`
+            `http://www.omdbapi.com/?apikey=${omdbAPIKey}&s=${query}`,
+            { signal: controller.signal }
           );
           if (!res.ok) {
             throw new Error("Something Went Wrong: Unable to fetch movies");
@@ -94,15 +102,21 @@ export default function App() {
 
           setMovies(data?.Search);
         } catch (err) {
-          console.log(err.message);
-          setError(err.message);
-          setMovies([]);
+          if (err.name !== "AbortError") {
+            console.log(err.message);
+            setError(err.message);
+            setMovies([]);
+          }
         } finally {
           setIsLoading(false);
           console.log("...done");
         }
       }
       fetchMovies();
+
+      return function () {
+        controller.abort();
+      };
     },
     [query]
   );
