@@ -146,12 +146,12 @@ export default function App() {
 
       if (selectedId != null) {
         const selectedMovie = watched.filter((m) => m.imdbID === selectedId);
-        if (selectedMovie.length == 0) {
+        if (selectedMovie.length === 0) {
           fetchMovieDetails();
         }
       }
     },
-    [selectedId]
+    [selectedId, watched]
   );
 
   return (
