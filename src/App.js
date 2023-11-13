@@ -28,8 +28,13 @@ export default function App() {
 
   function handleSelectMovie(id) {
     console.log("Handle Select Movie w/ID: " + id);
+    const watchedMovie = watched.filter((m) => m.imdbID === id);
+    if (watchedMovie.length === 0) {
+      setIsLoadingDetails(true);
+    } else {
+      // do nothing
+    }
     setSelectedId(id);
-    setIsLoadingDetails(true);
   }
 
   function handleSetWatched(movie, update) {
@@ -105,6 +110,9 @@ export default function App() {
   useEffect(
     function () {
       async function fetchMovieDetails() {
+        if (selectedId === null) {
+          return;
+        }
         try {
           setError("");
           console.log("fetching Details...");
@@ -135,7 +143,13 @@ export default function App() {
           console.log("...done fetching details");
         }
       }
-      if (selectedId != null) fetchMovieDetails();
+
+      if (selectedId != null) {
+        const selectedMovie = watched.filter((m) => m.imdbID === selectedId);
+        if (selectedMovie.length == 0) {
+          fetchMovieDetails();
+        }
+      }
     },
     [selectedId]
   );
@@ -487,7 +501,7 @@ function WatchedMovie({ movie, selectedId, setSelectedId, onDeleteWatched }) {
   }
 
   return (
-    <li onClick={onWatchedClick}>
+    <li onClick={(e) => onWatchedClick(e, movie.imdbID)}>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
       <h3>{movie.Title}</h3>
       <div>
