@@ -326,9 +326,27 @@ function MovieDetails({
   setWatchedMovie,
   movieDetails,
 }) {
-  if (movieDetails == null) {
-    return;
-  }
+  // Effect with Cleanup to Set Document Title (Tab in Chrome)
+  useEffect(
+    function setupTitle() {
+      if (movieDetails !== null) {
+        document.title = `🎬 🎥Movie | ${movieDetails.Title}`;
+        //After the initial render, effect runs after the cleanup from the previous render
+        //console.log("Setting title movie ${movieDetails.Title");
+      }
+      /* The Cleanup function is returned from the effect.
+       * Runs on every render, just before this effect runs, and at unmount.
+       * Note: even on the unmount call, we have access to the entire "MovieDetails"
+       *       state, because a javascript Closure "MovieDetails" is still alive.
+       */
+      return function () {
+        document.title = "React Movie List";
+        // After 1st render, the cleanup runs "before" the effect.
+        //console.log("Clean up effect for movie ${movieDetails.Title");
+      };
+    },
+    [movieDetails]
+  );
 
   function onSetWatched() {
     movieDetails.isWatched = !movieDetails.isWatched;
@@ -363,6 +381,12 @@ function MovieDetails({
       movieDetails.isWatched = true;
       setWatchedMovie(movieDetails, false); // Not an update, add to list)
     }
+  }
+
+  if (movieDetails == null) {
+    console.log("Movie Details is NULL!!");
+    alert("Null movie Details!!!");
+    return;
   }
 
   /* Destructure Movie Details to get local variables */
