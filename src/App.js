@@ -302,9 +302,7 @@ function MovieList({ movies, selectedId, setSelectedId }) {
 
 function Movie({ movie, selectedId, setSelectedId }) {
   function selectMovie() {
-    setSelectedId((selectedId) =>
-      selectedId === movie.imdbID ? null : movie.imdbID
-    );
+    setSelectedId(selectedId === movie.imdbID ? null : movie.imdbID);
   }
 
   return (
