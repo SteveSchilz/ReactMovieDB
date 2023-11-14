@@ -37,6 +37,10 @@ export default function App() {
     setSelectedId(id);
   }
 
+  function handleCloseMovie() {
+    setSelectedId(null);
+  }
+
   function handleSetWatched(movie, update) {
     const notInList =
       watched.filter((m) => m.imdbID === movie.imdbID).length === 0;
@@ -192,8 +196,8 @@ export default function App() {
           {selectedId && !isLoadingDetails && (
             <MovieDetails
               selectedId={selectedId}
-              setSelectedId={setSelectedId}
               setWatchedMovie={handleSetWatched}
+              onCloseMovie={handleCloseMovie}
               movieDetails={movieDetails}
             />
           )}
@@ -336,8 +340,8 @@ function Movie({ movie, selectedId, setSelectedId }) {
 // { Poster, Title, Type, Year, imdbID}
 function MovieDetails({
   selectedId,
-  setSelectedId,
   setWatchedMovie,
+  onCloseMovie,
   movieDetails,
 }) {
   // Effect with Cleanup to Set Document Title (Tab in Chrome)
@@ -362,6 +366,37 @@ function MovieDetails({
     [movieDetails]
   );
 
+  /*
+   * We are running this effect on mount only (2nd parm = [])
+   * Then we use an html function to install an event listener.
+   * So we are kind of bypassing the whole react system (Escape Hatch)
+   *
+   * We put it here in the MovieDetails(as opposed to main)
+   * so that it is only running when movie details is on the screen
+   */
+  useEffect(
+    function () {
+      // event listener must be exactly the same function in the
+      // addListener and remove listener callsd.
+      function keyHandler(e) {
+        if (e.code === "Escape") {
+          onCloseMovie();
+          //console.log("Closing!!!!");
+        }
+      }
+      ///console.log("Adding Key Handler");
+      document.addEventListener("keydown", keyHandler);
+
+      // Cleanup Function - Remove event listener so we don't
+      // keep adding more everytime
+      return function () {
+        ///console.log("Removing Key Handler");
+        document.removeEventListener("keydown", keyHandler);
+      };
+    },
+    [onCloseMovie]
+  );
+
   function onSetWatched() {
     movieDetails.isWatched = !movieDetails.isWatched;
     const newWatchedMovie = {
@@ -377,10 +412,6 @@ function MovieDetails({
     };
     setWatchedMovie(newWatchedMovie, false);
     //onCloseMovie();  // This line will close the details after adding to the watch list
-  }
-
-  function onCloseMovie() {
-    setSelectedId(null);
   }
 
   /* If the user rates the movie, they must have watched it, so we add it to the watched list*/
