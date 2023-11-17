@@ -275,6 +275,13 @@ function Logo() {
 function Search({ movies, query, setQuery }) {
   const [tempQuery, setTempQuery] = useState("");
 
+  // This works, but is not declarative, and not "React" Style
+  useEffect(function () {
+    const el = document.querySelector(".search");
+    console.log(el);
+    el.focus();
+  });
+
   function handleSubmit(e) {
     e.preventDefault();
     console.log("Submit" + tempQuery + " (Q=" + query);
