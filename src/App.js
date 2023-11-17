@@ -42,13 +42,6 @@ export default function App() {
   }
 
   function handleSetWatched(movie, update) {
-    function saveLocally(movieList) {
-      // Local Storage == key/Value pair storage in browser - depends on the exact URL
-      // Because the setWatchedMovie call above is async, we need to spread the watchlist
-      // and ad the newwatchedMovie
-      localStorage.setItem("watched", JSON.stringify(movieList));
-    }
-
     const notInList =
       watched.filter((m) => m.imdbID === movie.imdbID).length === 0;
 
@@ -58,7 +51,6 @@ export default function App() {
       /* If movie is not in list add it to the list */
       updatedMovieList = [...watched, movie];
       setWatched((watched) => updatedMovieList);
-      saveLocally(updatedMovieList);
     } else {
       /* If it's already in the list, either update it, or remove it from the list */
       if (update) {
@@ -73,7 +65,6 @@ export default function App() {
           wm.imdbID === movieDetails.imdbID ? updatedMovie : wm
         );
         setWatched(updatedMovieList);
-        saveLocally(updatedMovieList);
       } else {
         /* Remove movie from list */
         setWatched((watched) =>
@@ -87,6 +78,23 @@ export default function App() {
     setSelectedId(null);
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
+
+  // Save a copy of the movie data to browser local storage
+  //
+  // LocalStorage is key/Value pair storage in browser - depends on the exact URL
+  //
+  // Runs on: Watched updated
+  // Since this runs any time the watched list is updated, we have updated
+  // state for the watched array, we no longer need to do fancy workarounds
+  // like spreading the array to add the new movie.
+  useEffect(
+    function saveLocally() {
+      // Local Storage ==
+      localStorage.setItem("watched", JSON.stringify(watched));
+      console.log("Saved!");
+    },
+    [watched]
+  );
 
   useEffect(
     function () {
