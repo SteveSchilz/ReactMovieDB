@@ -11,12 +11,19 @@ const average = (arr) =>
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [movieDetails, setMovieDetails] = useState([]);
-  const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
+
+  // Lazy Initial State: useState with a callback to initialize it
+  // Function must be pure, with no arguments
+  // Value returned will be used as initial state
+  const [watched, setWatched] = useState(function () {
+    const storedValue = JSON.parse(localStorage.getItem("watched"));
+    return storedValue;
+  });
 
   function handleSetQuery(message) {
     setQuery(message);
@@ -91,7 +98,6 @@ export default function App() {
     function saveLocally() {
       // Local Storage ==
       localStorage.setItem("watched", JSON.stringify(watched));
-      console.log("Saved!");
     },
     [watched]
   );
