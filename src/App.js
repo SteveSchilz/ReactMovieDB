@@ -42,29 +42,38 @@ export default function App() {
   }
 
   function handleSetWatched(movie, update) {
+    function saveLocally(movieList) {
+      // Local Storage == key/Value pair storage in browser - depends on the exact URL
+      // Because the setWatchedMovie call above is async, we need to spread the watchlist
+      // and ad the newwatchedMovie
+      localStorage.setItem("watched", JSON.stringify(movieList));
+    }
+
     const notInList =
       watched.filter((m) => m.imdbID === movie.imdbID).length === 0;
 
+    var updatedMovieList = [];
+
     if (notInList) {
       /* If movie is not in list add it to the list */
-      setWatched((watched) => [...watched, movie]);
+      updatedMovieList = [...watched, movie];
+      setWatched((watched) => updatedMovieList);
+      saveLocally(updatedMovieList);
     } else {
       /* If it's already in the list, either update it, or remove it from the list */
       if (update) {
         /* Update the user-details */
-        setWatched((watched) =>
-          watched.map((wm) =>
-            wm.imdbID === movieDetails.imdbID
-              ? /* Update current movie by spreading */
-                {
-                  ...wm,
-                  countRatingDecisions: movieDetails.countRatingDecisions,
-                  userRating: movieDetails.userRating,
-                  isWatched: movieDetails.userRating,
-                }
-              : wm
-          )
+        const updatedMovie = {
+          ...movieDetails,
+          countRatingDecisions: movieDetails.countRatingDecisions,
+          userRating: movieDetails.userRating,
+          isWatched: movieDetails.userRating,
+        };
+        const updatedMovieList = watched.map((wm) =>
+          wm.imdbID === movieDetails.imdbID ? updatedMovie : wm
         );
+        setWatched(updatedMovieList);
+        saveLocally(updatedMovieList);
       } else {
         /* Remove movie from list */
         setWatched((watched) =>
