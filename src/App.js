@@ -26,6 +26,7 @@ export default function App() {
   });
 
   function handleSetQuery(message) {
+    console.log("Set Query(", message, ")");
     setQuery(message);
     setIsLoading(false);
     setIsLoadingDetails(false);
@@ -145,6 +146,9 @@ export default function App() {
       }
       fetchMovies();
 
+      // Return a cleanup function to be called when complete.
+      // This one will cancel any long-running query when a new
+      // request is submitted before this one completes.
       return function () {
         controller.abort();
       };
@@ -178,14 +182,14 @@ export default function App() {
           data.userRating = 0; // and with a user rating of 0
           data.countRatingDecisions = 0; // and Rating decision count of 0
           setMovieDetails(data);
-          console.log("Successfully fetched details for " + data.title);
+          console.log("...Successfully fetched details for " + data.Title);
         } catch (err) {
           console.log(err.message);
           setError(err.message);
           setSelectedId(null);
         } finally {
           setIsLoadingDetails(false);
-          console.log("...done fetching details");
+          //console.log("...done fetching details");
         }
       }
 
@@ -272,6 +276,7 @@ function Logo() {
     <div className="logo">
       <span role="img">🍿</span>
       <h1>usePopcorn</h1>
+      <span> </span>
     </div>
   );
 }
@@ -318,7 +323,7 @@ function Search({ movies, query, setQuery }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    console.log("Submit" + tempQuery + " (Q=" + query);
+    console.log("Submit Query: " + tempQuery + " (curent Q=" + query + ")");
     setQuery(tempQuery);
   }
   return (
@@ -409,6 +414,9 @@ function MovieDetails({
   onCloseMovie,
   movieDetails,
 }) {
+  //const [avgRating, setAvgRating] = useState(0);
+  //const [avgCount, setAvgCount] = useState(0);
+
   // Effect with Cleanup to Set Document Title (Tab in Chrome)
   useEffect(
     function setupTitle() {
@@ -542,6 +550,7 @@ function MovieDetails({
           </p>
         </div>
       </header>
+      {/* <p>{avgRating}</p> */}
       <section>
         <div className="rating">
           <StarRating
