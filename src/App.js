@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StarRating from "./StarRating.js";
 
 /* Refer to the readme regarding setting up omdbApiKey if this import fails */
@@ -31,6 +31,7 @@ export default function App() {
     setIsLoadingDetails(false);
     setSelectedId(null);
     setError("");
+    setMovies([]);
   }
 
   function handleSelectMovie(id) {
@@ -112,9 +113,12 @@ export default function App() {
       const controller = new AbortController();
 
       async function fetchMovies() {
+        if (query === "") return;
+
         try {
           setIsLoading(true);
           setError("");
+
           console.log("fetching...");
           const res = await fetch(
             `http://www.omdbapi.com/?apikey=${omdbAPIKey}&s=${query}`,
@@ -275,12 +279,42 @@ function Logo() {
 function Search({ movies, query, setQuery }) {
   const [tempQuery, setTempQuery] = useState("");
 
-  // This works, but is not declarative, and not "React" Style
-  useEffect(function () {
-    const el = document.querySelector(".search");
-    console.log(el);
-    el.focus();
-  });
+  // This creates a reference to a DOM element in a declarative way...
+  // Referenced in the actual HTML input element as ref={inputEl}
+  const inputEl = useRef(null);
+
+  // Initialize our ref on mount (empty dependency array)
+  // This is after the DOM has been loaded
+  useEffect(function initialFocus() {
+    inputEl.current.focus();
+  }, []);
+
+  // Key handler to set focus on Search input and clear current results
+  useEffect(
+    function enterKeyHandler() {
+      function keyCallback(e) {
+        if (document.activeElement === inputEl.current) {
+          return;
+        }
+
+        if (e.code === "Enter") {
+          inputEl.current.focus();
+          inputEl.current.value = "";
+          setTempQuery(""); // Temp Query is local state before we hit enter
+          setQuery(""); // Query is the actual state that is searched
+          return;
+        }
+      }
+      document.addEventListener("keydown", keyCallback);
+
+      // Cleanup function removes the event listener because we call
+      // this everytime we call setQuery
+      return () => {
+        document.removeEventListener("keydown", keyCallback);
+      };
+    },
+    [setQuery, setTempQuery]
+  );
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -295,6 +329,7 @@ function Search({ movies, query, setQuery }) {
         placeholder="Search movies..."
         value={tempQuery}
         onChange={(e) => setTempQuery(e.target.value)}
+        ref={inputEl}
       />
     </form>
   );
