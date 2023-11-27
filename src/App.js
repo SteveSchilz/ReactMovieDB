@@ -22,6 +22,9 @@ export default function App() {
   // Value returned will be used as initial state
   const [watched, setWatched] = useState(function () {
     const storedValue = JSON.parse(localStorage.getItem("watched"));
+    if (typeof storedValue === "undefined" || storedValue === null) {
+      return [];
+    }
     return storedValue;
   });
 
