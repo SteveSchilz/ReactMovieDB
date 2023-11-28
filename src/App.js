@@ -42,9 +42,9 @@ export default function App() {
     console.log("Handle Select Movie w/ID: " + id);
     const watchedMovie = watched.filter((m) => m.imdbID === id);
     if (watchedMovie.length === 0) {
+      // We only show the loading message if this movie is not already on watched list
       setIsLoadingDetails(true);
-    } else {
-      // do nothing
+    } else if (watchedMovie.length === 1) {
     }
     setSelectedId(id);
   }
@@ -68,13 +68,13 @@ export default function App() {
       if (update) {
         /* Update the user-details */
         const updatedMovie = {
-          ...movieDetails,
-          countRatingDecisions: movieDetails.countRatingDecisions,
-          userRating: movieDetails.userRating,
-          isWatched: movieDetails.userRating,
+          ...movie,
+          countRatingDecisions: movie.countRatingDecisions,
+          userRating: movie.userRating,
+          isWatched: movie.isWatched,
         };
         const updatedMovieList = watched.map((wm) =>
-          wm.imdbID === movieDetails.imdbID ? updatedMovie : wm
+          wm.imdbID === movie.imdbID ? updatedMovie : wm
         );
         setWatched(updatedMovieList);
       } else {
@@ -285,6 +285,14 @@ function Logo() {
 }
 
 function Search({ movies, query, setQuery }) {
+  // TempQuery is used to hold the state while user is typing.
+  // When user hits enter (form submit), setQuery is called to
+  // submit the query through the fetchMovies hook. This approach
+  // greatly reduces calls to the API, however, you need to be
+  // careful about the difference between setQuery and SetTempQuery.
+  //
+  // tempQuery holds the visual contents of the search box.
+  // query is the value as submitted to the Open Movie DB API.
   const [tempQuery, setTempQuery] = useState("");
 
   // This creates a reference to a DOM element in a declarative way...
@@ -443,7 +451,6 @@ function MovieDetails({
   );
 
   /*
-   * We are running this effect on mount only (2nd parm = [])
    * Then we use an html function to install an event listener.
    * So we are kind of bypassing the whole react system (Escape Hatch)
    *
@@ -451,7 +458,7 @@ function MovieDetails({
    * so that it is only running when movie details is on the screen
    */
   useEffect(
-    function () {
+    function escapeKeyListener() {
       // event listener must be exactly the same function in the
       // addListener and remove listener callsd.
       function keyHandler(e) {
@@ -492,7 +499,7 @@ function MovieDetails({
 
   /* If the user rates the movie, they must have watched it, so we add it to the watched list*/
   function handleSetRating(rating) {
-    /* We get an initial call to this function when the StarRating component is insitialized */
+    /* We get an initial call to this function when the StarRating component is initialized */
     if (rating === 0) return;
 
     movieDetails.userRating = Number(rating);
