@@ -200,6 +200,9 @@ export default function App() {
         const selectedMovie = watched.filter((m) => m.imdbID === selectedId);
         if (selectedMovie.length === 0) {
           fetchMovieDetails();
+        } else if (selectedMovie.length === 1) {
+          // Reloading a movie from the watched list
+          setMovieDetails(selectedMovie[0]);
         }
       }
     },
@@ -425,8 +428,46 @@ function MovieDetails({
   onCloseMovie,
   movieDetails,
 }) {
+  // Note: Jonas passes in the entire watched list.  Instead, I pass in only
+  //       MovieDetails object, which allows me to open a movie from the watched list.
+  //
+  // Jonas also has some state here:
+  //
+  // * const [movie, setMovie] = useState({});                // Corresponds to my movieDetails parameter
+  // * const [isLoading, setIsLoading] = useState(false);     // Handled at top level in my app
+  //
+  // I had to add this one to properly implement useRef counter,
+  // it duplicates "MovieDetails.userRating"
+  // So far he doesn't seem to be using this ref for anything other
+  // than demonstrating how useRef works, so.. candidate for removal
+  const [localUserRating, setLocalUserRating] = useState(0);
+  const [localIsWatched, setLocalIsWatched] = useState(() => {
+    if (movieDetails.length > 0 && "isWatched" in movieDetails[0]) {
+      return movieDetails.isWatched;
+    } else {
+      return false;
+    }
+  });
+
   //const [avgRating, setAvgRating] = useState(0);
   //const [avgCount, setAvgCount] = useState(0);
+
+  // countRef UseRef: implements a counter.
+  // Note that:
+  //  1. unlike a useState, there is no setter
+  //  2. We directly manipulate the current variable
+  const countRatingDecisionsRef = useRef(movieDetails.countRatingDecisions);
+
+  useEffect(
+    function countUserRating() {
+      if (localUserRating === 0) {
+        // Do nothing
+      } else {
+        countRatingDecisionsRef.current++;
+      }
+    },
+    [localUserRating]
+  );
 
   // Effect with Cleanup to Set Document Title (Tab in Chrome)
   useEffect(
@@ -481,7 +522,8 @@ function MovieDetails({
   );
 
   function onSetWatched() {
-    movieDetails.isWatched = !movieDetails.isWatched;
+    setLocalIsWatched((isWatched) => !isWatched);
+
     const newWatchedMovie = {
       imdbID: selectedId,
       Title,
@@ -489,9 +531,9 @@ function MovieDetails({
       Poster: Poster,
       imdbRating: Number(imdbRating),
       Runtime: Number(Runtime.split(" ").at(0)),
-      userRating: Number(movieDetails.userRating),
-      countRatingDecisions: Number(movieDetails.countRatingDecisions),
-      isWatched: movieDetails.isWatched,
+      userRating: Number(localUserRating),
+      countRatingDecisions: countRatingDecisionsRef.current,
+      isWatched: !localIsWatched,
     };
     setWatchedMovie(newWatchedMovie, false);
     //onCloseMovie();  // This line will close the details after adding to the watch list
@@ -500,14 +542,22 @@ function MovieDetails({
   /* If the user rates the movie, they must have watched it, so we add it to the watched list*/
   function handleSetRating(rating) {
     /* We get an initial call to this function when the StarRating component is initialized */
-    if (rating === 0) return;
+    if (rating === 0 || rating === movieDetails.userRating) return;
 
-    movieDetails.userRating = Number(rating);
+    setLocalUserRating(rating);
+
+    const modifiedMovieDetails = {
+      ...movieDetails,
+      isWatched: true,
+      userRating: Number(rating),
+      countRatingDecisions:
+        localUserRating === 0 ? 1 : countRatingDecisionsRef.current + 1,
+    };
+
     if (movieDetails.isWatched) {
-      setWatchedMovie(movieDetails, true); // true = Update existing movie
+      setWatchedMovie(modifiedMovieDetails, true); // true = Update existing movie
     } else {
-      movieDetails.isWatched = true;
-      setWatchedMovie(movieDetails, false); // Not an update, add to list)
+      setWatchedMovie(modifiedMovieDetails, false); // Not an update, add to list)
     }
   }
 
@@ -529,7 +579,7 @@ function MovieDetails({
     Actors = movieDetails.Actors,
     Director = movieDetails.Director,
     Genre = movieDetails.Genre,
-    /* We don't destructure these, because they are editable.
+    /* We don't destructure these, because there is local state for them.
      * We save the entire movieDetails struct in the watch list whenver
      * the rating changes or we add the movie to the watched list
      */
@@ -614,7 +664,7 @@ function WatchedSummary({ watched }) {
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
   const avgUserRating = average(watched.map((movie) => movie.userRating));
   const avgRuntime = average(
-    watched.map((movie) => movie.Runtime.split(" ").at(0))
+    watched.map((movie) => movie.Runtime?.match(/\d+/)?.[0] ?? 0)
   );
 
   return (
