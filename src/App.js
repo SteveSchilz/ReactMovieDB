@@ -1,22 +1,21 @@
 import { useEffect, useRef, useState } from "react";
+import { useFetchMovies } from "./fetchMovies.js";
+import { useFetchDetails } from "./fetchDetails.js";
 import StarRating from "./StarRating.js";
-
-/* Refer to the readme regarding setting up omdbApiKey if this import fails */
-import secrets from "./secrets.json";
-const omdbAPIKey = secrets.omdbApiKey;
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 export default function App() {
-  const [movies, setMovies] = useState([]);
-  const [movieDetails, setMovieDetails] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
-  const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
 
+  const {
+    movies,
+    isLoading,
+    error: errorFetching,
+    clearMovieList,
+  } = useFetchMovies(query);
   // Lazy Initial State: useState with a callback to initialize it
   // Function must be pure, with no arguments
   // Value returned will be used as initial state
@@ -27,26 +26,25 @@ export default function App() {
     }
     return storedValue;
   });
+  const { movieDetails, isLoadingDetails, errorDetails, clearDetailsError } =
+    useFetchDetails(selectedId, watched);
 
   function handleSetQuery(message) {
     console.log("Set Query(", message, ")");
     setQuery(message);
-    setIsLoading(false);
-    setIsLoadingDetails(false);
     setSelectedId(null);
-    setError("");
-    setMovies([]);
+    clearMovieList();
+    clearDetailsError();
   }
 
   function handleSelectMovie(id) {
     console.log("Handle Select Movie w/ID: " + id);
     const watchedMovie = watched.filter((m) => m.imdbID === id);
-    if (watchedMovie.length === 0) {
-      // We only show the loading message if this movie is not already on watched list
-      setIsLoadingDetails(true);
-    } else if (watchedMovie.length === 1) {
+    // set selected id will fetch movie, or retrieve it from watch
+    // list if it's already there
+    if (watchedMovie.length <= 1) {
+      setSelectedId(id);
     }
-    setSelectedId(id);
   }
 
   function handleCloseMovie() {
@@ -107,108 +105,6 @@ export default function App() {
     [watched]
   );
 
-  useEffect(
-    function () {
-      // This API allows us to abort the request in a cleanup function
-      // when a second request comes in while this one is running.
-      // To do this, we pass controller.signal in the fetch request,
-      // and use the cleanup function to abort the request: that happens
-      // when a new request comes in BEFORE the current one has completed.
-      const controller = new AbortController();
-
-      async function fetchMovies() {
-        if (query === "") return;
-
-        try {
-          setIsLoading(true);
-          setError("");
-
-          console.log("fetching...");
-          const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${omdbAPIKey}&s=${query}`,
-            { signal: controller.signal }
-          );
-          if (!res.ok) {
-            throw new Error("Something Went Wrong: Unable to fetch movies");
-          }
-
-          const data = await res.json();
-          if (data.Response === "False") throw new Error("Movie Not Found");
-
-          setMovies(data?.Search);
-        } catch (err) {
-          if (err.name !== "AbortError") {
-            console.log(err.message);
-            setError(err.message);
-            setMovies([]);
-          }
-        } finally {
-          setIsLoading(false);
-          console.log("...done fetching Movies");
-        }
-      }
-      fetchMovies();
-
-      // Return a cleanup function to be called when complete.
-      // This one will cancel any long-running query when a new
-      // request is submitted before this one completes.
-      return function () {
-        controller.abort();
-      };
-    },
-    [query]
-  );
-
-  useEffect(
-    function () {
-      async function fetchMovieDetails() {
-        if (selectedId === null) {
-          return;
-        }
-        try {
-          setError("");
-          console.log("fetching Details...");
-          const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${omdbAPIKey}&i=${selectedId}`
-          );
-          if (!res.ok) {
-            throw new Error(
-              "Something Went Wrong: Unable to fetch movie details"
-            );
-          }
-
-          const data = await res.json();
-          if (data.Response === "False") {
-            throw new Error("Movie Details Not Found");
-          }
-          data.isWatched = false; // Always start off not watched when fetched
-          data.userRating = 0; // and with a user rating of 0
-          data.countRatingDecisions = 0; // and Rating decision count of 0
-          setMovieDetails(data);
-          console.log("...Successfully fetched details for " + data.Title);
-        } catch (err) {
-          console.log(err.message);
-          setError(err.message);
-          setSelectedId(null);
-        } finally {
-          setIsLoadingDetails(false);
-          //console.log("...done fetching details");
-        }
-      }
-
-      if (selectedId != null) {
-        const selectedMovie = watched.filter((m) => m.imdbID === selectedId);
-        if (selectedMovie.length === 0) {
-          fetchMovieDetails();
-        } else if (selectedMovie.length === 1) {
-          // Reloading a movie from the watched list
-          setMovieDetails(selectedMovie[0]);
-        }
-      }
-    },
-    [selectedId, watched]
-  );
-
   return (
     <>
       <NavBar movies={movies}>
@@ -219,18 +115,18 @@ export default function App() {
       <Main>
         <ToggleBox>
           {isLoading && <Loader text="Loading Movies" />}
-          {!isLoading && !error && (
+          {!isLoading && !errorFetching && (
             <MovieList
               movies={movies}
               selectedId={selectedId}
               setSelectedId={handleSelectMovie}
             />
           )}
-          {query && error && <ErrorMessage message={error} />}
+          {query && errorFetching && <ErrorMessage message={errorFetching} />}
           {!query && <PromptSearch />}
         </ToggleBox>
         <ToggleBox>
-          {selectedId && !isLoadingDetails && (
+          {selectedId && !isLoadingDetails && !errorDetails && (
             <MovieDetails
               selectedId={selectedId}
               setWatchedMovie={handleSetWatched}
@@ -238,7 +134,10 @@ export default function App() {
               movieDetails={movieDetails}
             />
           )}
-          {isLoadingDetails && <Loader text="Loading Details" />}
+          {errorDetails && <ErrorMessage message={errorDetails} />}
+          {isLoadingDetails && !errorDetails && (
+            <Loader text="Loading Details" />
+          )}
           {!selectedId && (
             <>
               <WatchedSummary watched={watched} />
@@ -520,6 +419,11 @@ function MovieDetails({
     },
     [onCloseMovie]
   );
+
+  if (movieDetails.length === 0) {
+    console.log("Tried to show MovieDetails with no Movie!");
+    return;
+  }
 
   function onSetWatched() {
     setLocalIsWatched((isWatched) => !isWatched);
