@@ -565,11 +565,38 @@ function WatchedMovieList({
 }
 
 function WatchedSummary({ watched }) {
+  /* Handles reading the runtime value from the movie object
+   * this is complicated because there are several possibilites for the
+   * movie.Runtime objec:
+   * a) undefined
+   * b) an integer, e.g. 50
+   * c) a string like "50 minutes"
+   */
+  function readRuntime(movie) {
+    // Check if runtime is undefined or null, return 0
+    if (movie.Runtime === undefined || movie.Runtime === null) {
+      return 0;
+    }
+
+    // If runtime is already a number, return it as-is
+    if (typeof movie.Runtime === "number") {
+      return movie.Runtime;
+    }
+
+    // If runtime is a string, attempt to extract the first number
+    if (typeof movie.Runtime === "string") {
+      const matches = movie.Runtime.match(/\d+/);
+      if (matches) {
+        return parseInt(matches[0], 10);
+      }
+    }
+    // Default to 0 if none of the above conditions are met
+    return 0;
+  }
+
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
   const avgUserRating = average(watched.map((movie) => movie.userRating));
-  const avgRuntime = average(
-    watched.map((movie) => movie.Runtime?.match(/\d+/)?.[0] ?? 0)
-  );
+  const avgRuntime = average(watched.map((movie) => readRuntime(movie)));
 
   return (
     <div className="summary">
