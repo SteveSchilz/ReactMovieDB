@@ -180,7 +180,7 @@ function Logo() {
   return (
     <div className="logo">
       <span role="img">🍿</span>
-      <h1>usePopcorn</h1>
+      <h1>React MovieDB</h1>
       <span> </span>
     </div>
   );
@@ -602,19 +602,34 @@ function WatchedSummary({ watched }) {
     <div className="summary">
       <h2>Movies you watched</h2>
       <div>
-        <p>
+        <p class="tooltip">
+          <span class="tooltiptext">
+            The total Number of movies you watched
+          </span>
           <span>#️⃣</span>
           <span>{watched.length} movies</span>
         </p>
-        <p>
+        <p class="tooltip">
+          <span class="tooltiptext">
+            Average rating of your watched movies as rated by the Open Movie DB
+            API (
+            <a href="https://www.omdbapi.com/" target="_blank" rel="noreferrer">
+              (omdbapi.com)
+            </a>
+            )
+          </span>
           <span>⭐️</span>
           <span>{avgImdbRating.toFixed(2)}</span>
         </p>
-        <p>
+        <p class="tooltip">
+          <span class="tooltiptext">Your Average Movie Rating</span>
           <span>🌟</span>
           <span>{avgUserRating.toFixed(2)}</span>
         </p>
-        <p>
+        <p class="tooltip">
+          <span class="tooltiptext">
+            The average runtime in minutes of your watched movies.
+          </span>
           <span>⏳</span>
           <span>{avgRuntime.toFixed(0)} min</span>
         </p>
