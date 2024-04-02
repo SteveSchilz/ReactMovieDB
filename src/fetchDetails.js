@@ -18,7 +18,7 @@ export function useFetchDetails(selectedId, watched) {
         try {
           setIsLoadingDetails(true);
           setError("");
-          const getString = `http://www.omdbapi.com/?apikey=${omdbAPIKey}&i=${selectedId}`;
+          const getString = `https://www.omdbapi.com/?apikey=${omdbAPIKey}&i=${selectedId}`;
           console.log("fetching Details using ", getString);
           const res = await fetch(getString);
           if (!res.ok) {

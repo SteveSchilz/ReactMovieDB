@@ -31,7 +31,7 @@ export function useFetchMovies(query) {
           setError("");
 
           console.log("fetching...");
-          const getString = `http://www.omdbapi.com/?apikey=${omdbAPIKey}&s=${query}`;
+          const getString = `https://www.omdbapi.com/?apikey=${omdbAPIKey}&s=${query}`;
           console.log(getString);
           const res = await fetch(getString, { signal: controller.signal });
           if (!res.ok) {
